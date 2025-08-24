@@ -1,0 +1,76 @@
+openapi: 3.0.3
+info:
+  title: Sample API
+  description: サンプル用のGET APIエンドポイント
+  version: 1.0.0
+servers:
+  - url: http://localhost:4010
+    description: Development server
+paths:
+  /api/users:
+    get:
+      operationId: getUsers
+      summary: ユーザー一覧を取得
+      description: システムに登録されているユーザーの一覧を取得します
+      parameters:
+        - name: name
+          in: query
+          description: フィルタリング用の名前（文字列）
+          required: false
+          schema:
+            type: string
+            example: "田中"
+        - name: limit
+          in: query
+          description: 取得件数の上限（数値）
+          required: false
+          schema:
+            type: integer
+            nullable: true
+            minimum: 1
+            maximum: 100
+            example: 10
+        - name: tags
+          in: query
+          description: フィルタリング用のタグ配列
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+            example: ["premium", "active"]
+      responses:
+        '200':
+          description: ユーザー一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    name:
+                      type: string
+                      example: "田中太郎"
+                    email:
+                      type: string
+                      example: "tanaka@example.com"
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2024-01-01T00:00:00Z"
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
