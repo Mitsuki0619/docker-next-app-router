@@ -42,35 +42,196 @@ paths:
               type: string
             example: ["premium", "active"]
       responses:
-        '200':
+        "200":
           description: ユーザー一覧の取得に成功
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                      example: 1
-                    name:
-                      type: string
-                      example: "田中太郎"
-                    email:
-                      type: string
-                      example: "tanaka@example.com"
-                    created_at:
-                      type: string
-                      format: date-time
-                      example: "2024-01-01T00:00:00Z"
-        '500':
-          description: サーバーエラー
+                  $ref: "#/components/schemas/User"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    post:
+      operationId: createUser
+      summary: ユーザーを作成
+      description: 新しいユーザーを作成します
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+              properties:
+                name:
+                  type: string
+                  example: "佐藤花子"
+                email:
+                  type: string
+                  format: email
+                  example: "sato@example.com"
+                tags:
+                  type: array
+                  items:
+                    type: string
+                  example: ["new", "basic"]
+      responses:
+        "201":
+          description: ユーザーの作成に成功
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/users/{id}:
+    get:
+      operationId: getUser
+      summary: ユーザーを取得
+      description: 指定されたIDのユーザー情報を取得します
+      parameters:
+        - name: id
+          in: path
+          description: ユーザーID
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: ユーザーの取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    put:
+      operationId: updateUser
+      summary: ユーザーを更新
+      description: 指定されたIDのユーザー情報を更新します
+      parameters:
+        - name: id
+          in: path
+          description: ユーザーID
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "佐藤花子"
+                email:
+                  type: string
+                  format: email
+                  example: "sato@example.com"
+                tags:
+                  type: array
+                  items:
                     type: string
-                    example: "Internal server error"
+                  example: ["updated", "premium"]
+      responses:
+        "200":
+          description: ユーザーの更新に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    delete:
+      operationId: deleteUser
+      summary: ユーザーを削除
+      description: 指定されたIDのユーザーを削除します
+      parameters:
+        - name: id
+          in: path
+          description: ユーザーID
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "204":
+          description: ユーザーの削除に成功
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "田中太郎"
+        email:
+          type: string
+          format: email
+          example: "tanaka@example.com"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["premium", "active"]
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+  responses:
+    BadRequest:
+      description: リクエストが不正です
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Invalid request"
+    NotFound:
+      description: リソースが見つかりません
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Resource not found"
+    ServerError:
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Internal server error"

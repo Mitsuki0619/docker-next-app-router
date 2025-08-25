@@ -5,51 +5,150 @@
  * サンプル用のGET APIエンドポイント
  * OpenAPI spec version: 1.0.0
  */
-import { customInstance } from '../lib/custom-instance';
-export type GetUsersParams = {
-/**
- * フィルタリング用の名前（文字列）
- */
-name?: string;
-/**
- * 取得件数の上限（数値）
- * @minimum 1
- * @maximum 100
- * @nullable
- */
-limit?: number | null;
-/**
- * フィルタリング用のタグ配列
- */
-tags?: string[];
-};
-
-export type GetUsers200Item = {
+import { customInstance } from "../lib/custom-instance";
+import type { BodyType } from "../lib/custom-instance";
+export interface User {
   id?: number;
   name?: string;
   email?: string;
+  tags?: string[];
   created_at?: string;
+  updated_at?: string;
+}
+
+export type BadRequestResponse = {
+  error?: string;
 };
 
-export type GetUsers500 = {
+export type NotFoundResponse = {
   error?: string;
+};
+
+export type ServerErrorResponse = {
+  error?: string;
+};
+
+export type GetUsersParams = {
+  /**
+   * フィルタリング用の名前（文字列）
+   */
+  name?: string;
+  /**
+   * 取得件数の上限（数値）
+   * @minimum 1
+   * @maximum 100
+   * @nullable
+   */
+  limit?: number | null;
+  /**
+   * フィルタリング用のタグ配列
+   */
+  tags?: string[];
+};
+
+export type CreateUserBody = {
+  name: string;
+  email: string;
+  tags?: string[];
+};
+
+export type UpdateUserBody = {
+  name?: string;
+  email?: string;
+  tags?: string[];
 };
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
-
-  /**
+/**
  * システムに登録されているユーザーの一覧を取得します
  * @summary ユーザー一覧を取得
  */
 export const getUsers = (
-    params?: GetUsersParams,
- options?: SecondParameter<typeof customInstance>,) => {
-      return customInstance<GetUsers200Item[]>(
-      {url: `http://localhost:4010/api/users`, method: 'GET',
-        params
+  params?: GetUsersParams,
+  options?: SecondParameter<typeof customInstance>,
+) => {
+  return customInstance<User[]>(
+    { url: `http://localhost:4010/api/users`, method: "GET", params },
+    options,
+  );
+};
+
+/**
+ * 新しいユーザーを作成します
+ * @summary ユーザーを作成
+ */
+export const createUser = (
+  createUserBody: BodyType<CreateUserBody>,
+  options?: SecondParameter<typeof customInstance>,
+) => {
+  return customInstance<User>(
+    {
+      url: `http://localhost:4010/api/users`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createUserBody,
     },
-      options);
-    }
-  
-export type GetUsersResult = NonNullable<Awaited<ReturnType<typeof getUsers>>>
+    options,
+  );
+};
+
+/**
+ * 指定されたIDのユーザー情報を取得します
+ * @summary ユーザーを取得
+ */
+export const getUser = (
+  id: number,
+  options?: SecondParameter<typeof customInstance>,
+) => {
+  return customInstance<User>(
+    { url: `http://localhost:4010/api/users/${id}`, method: "GET" },
+    options,
+  );
+};
+
+/**
+ * 指定されたIDのユーザー情報を更新します
+ * @summary ユーザーを更新
+ */
+export const updateUser = (
+  id: number,
+  updateUserBody: BodyType<UpdateUserBody>,
+  options?: SecondParameter<typeof customInstance>,
+) => {
+  return customInstance<User>(
+    {
+      url: `http://localhost:4010/api/users/${id}`,
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      data: updateUserBody,
+    },
+    options,
+  );
+};
+
+/**
+ * 指定されたIDのユーザーを削除します
+ * @summary ユーザーを削除
+ */
+export const deleteUser = (
+  id: number,
+  options?: SecondParameter<typeof customInstance>,
+) => {
+  return customInstance<null>(
+    { url: `http://localhost:4010/api/users/${id}`, method: "DELETE" },
+    options,
+  );
+};
+
+export type GetUsersResult = NonNullable<Awaited<ReturnType<typeof getUsers>>>;
+export type CreateUserResult = NonNullable<
+  Awaited<ReturnType<typeof createUser>>
+>;
+export type GetUserResult = NonNullable<Awaited<ReturnType<typeof getUser>>>;
+export type UpdateUserResult = NonNullable<
+  Awaited<ReturnType<typeof updateUser>>
+>;
+export type DeleteUserResult = NonNullable<
+  Awaited<ReturnType<typeof deleteUser>>
+>;
