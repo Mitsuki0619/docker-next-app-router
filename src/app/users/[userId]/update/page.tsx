@@ -1,5 +1,24 @@
-import { getUser } from "@/__generated__/api";
+import { getUser, updateUser } from "@/__generated__/api";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+
+const updateUserAction = async (formData: FormData) => {
+  "use server";
+  const userId = Number(formData.get("userId"));
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const tags = (formData.get("tags") as string)
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter((tag) => tag.length > 0);
+
+  await updateUser(userId, {
+    name,
+    email,
+    tags: tags,
+  });
+  redirect(`/users/${userId}`);
+};
 
 interface Props {
   params: Promise<{ userId: string }>;
@@ -45,7 +64,7 @@ export default async function UpdateUserPage(props: Props) {
             Update User #{params.userId}
           </h1>
 
-          <form className="space-y-6">
+          <form className="space-y-6" action={updateUserAction}>
             <div>
               <label
                 htmlFor="name"
@@ -60,6 +79,7 @@ export default async function UpdateUserPage(props: Props) {
                 defaultValue={user.data.name}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-black"
                 placeholder="Enter user name"
+                name="name"
               />
             </div>
 
@@ -77,6 +97,7 @@ export default async function UpdateUserPage(props: Props) {
                 defaultValue={user.data.email}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-black"
                 placeholder="Enter email address"
+                name="email"
               />
             </div>
 
@@ -93,6 +114,7 @@ export default async function UpdateUserPage(props: Props) {
                 defaultValue={user.data.tags?.join(", ")}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-black"
                 placeholder="Enter tags separated by commas (e.g., premium, active)"
+                name="tags"
               />
               <p className="mt-2 text-sm text-gray-500">
                 Optional. Separate multiple tags with commas.

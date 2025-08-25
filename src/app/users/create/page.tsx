@@ -1,5 +1,6 @@
 import { createUser } from "@/__generated__/api";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 const createUserAction = async (formData: FormData) => {
   "use server";
@@ -15,7 +16,7 @@ const createUserAction = async (formData: FormData) => {
     email,
     tags: tags,
   });
-  console.log("User created:", { name, email, tags });
+  redirect("/users");
 };
 
 export default function CreateUserPage() {

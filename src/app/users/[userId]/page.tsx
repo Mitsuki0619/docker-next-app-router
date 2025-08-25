@@ -1,4 +1,13 @@
+import { deleteUser } from "@/__generated__/api";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+
+const deleteUserAction = async (formData: FormData) => {
+  "use server";
+  const userId = Number(formData.get("userId"));
+  await deleteUser(userId);
+  redirect("/users");
+};
 
 interface Props {
   params: Promise<{ userId: string }>;
@@ -41,27 +50,6 @@ export default async function UserDetailPage(props: Props) {
                 />
               </svg>
               Back to Users
-            </Link>
-            <Link
-              href={`/users/${params.userId}/update`}
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-labelledby="edit-icon"
-              >
-                <title id="edit-icon">Edit User</title>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                />
-              </svg>
-              Edit User
             </Link>
           </div>
         </div>
@@ -147,12 +135,15 @@ export default async function UserDetailPage(props: Props) {
                     >
                       Edit User
                     </Link>
-                    <button
-                      type="button"
-                      className="block w-full px-4 py-2 bg-red-600 text-white text-center rounded-lg hover:bg-red-700 transition-colors"
-                    >
-                      Delete User
-                    </button>
+                    <form action={deleteUserAction}>
+                      <input type="hidden" name="userId" value={user.id} />
+                      <button
+                        type="submit"
+                        className="block w-full px-4 py-2 bg-red-600 text-white text-center rounded-lg hover:bg-red-700 transition-colors"
+                      >
+                        Delete User
+                      </button>
+                    </form>
                   </div>
                 </div>
               </div>
